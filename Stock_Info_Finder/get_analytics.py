@@ -1,13 +1,9 @@
-import requests
 import pandas as pd
+import intrinio_data as int_d
 
 
 def get_data_for_analysis(query_response):
-    url_end_point = "https://api-v2.intrinio.com/securities/"
-    api_key = "/historical_data/adj_close_price?api_key=OjJiZDM3OWU0ZTI0YmM5YTdhNzY1NjIwZjczZGRjMjg0"
-    end_url = url_end_point + str(query_response).upper() + api_key
-    data = requests.get(end_url).json()
-    hist_prices = pd.DataFrame(data['historical_data'])
+    hist_prices = int_d.get_intrinio_hp(query_response)
     hp_trans = hist_prices.sort_values(by=['date']).reset_index().drop(columns='index')
     hp_trans['date'] = pd.to_datetime(hp_trans['date'])
     hp_trans['date'] = hp_trans['date'].dt.strftime('%m/%d/%y')
@@ -22,11 +18,7 @@ def get_data_for_analysis(query_response):
 
 
 def get_avg_volume(query_response):
-    url_end_point = "https://api-v2.intrinio.com/securities/"
-    api_key = "/prices/technicals/adtv?api_key=OjJiZDM3OWU0ZTI0YmM5YTdhNzY1NjIwZjczZGRjMjg0"
-    end_url = url_end_point + str(query_response).upper() + api_key
-    data = requests.get(end_url).json()
-    df = pd.DataFrame(data['technicals'])
+    df = int_d.get_intrinio_volume(query_response)
     end_date = pd.to_datetime(df.iloc[0]['date_time']).strftime('%m/%d/%y')
     end_value = round(float(df.iloc[0]['adtv']), 2)
     final_text = f'Average daily trading volume as of {end_date} was {end_value} shares.'
@@ -34,11 +26,7 @@ def get_avg_volume(query_response):
 
 
 def get_wr(query_response):
-    url_end_point = "https://api-v2.intrinio.com/securities/"
-    api_key = "/prices/technicals/wr?api_key=OjJiZDM3OWU0ZTI0YmM5YTdhNzY1NjIwZjczZGRjMjg0"
-    end_url = url_end_point + str(query_response).upper() + api_key
-    data = requests.get(end_url).json()
-    df = pd.DataFrame(data['technicals'])
+    df = int_d.get_intrinio_wr(query_response)
     end_date = pd.to_datetime(df.iloc[0]['date_time']).strftime('%m/%d/%y')
     end_value = round(float(df.iloc[0]['wr']), 2)
     if end_value < -80:
@@ -51,11 +39,7 @@ def get_wr(query_response):
 
 
 def get_os(query_response):
-    url_end_point = "https://api-v2.intrinio.com/securities/"
-    api_key = "/prices/technicals/sr?api_key=OjJiZDM3OWU0ZTI0YmM5YTdhNzY1NjIwZjczZGRjMjg0"
-    end_url = url_end_point + str(query_response).upper() + api_key
-    data = requests.get(end_url).json()
-    df = pd.DataFrame(data['technicals'])
+    df = int_d.get_intrinio_sr(query_response)
     end_date = pd.to_datetime(df.iloc[0]['date_time']).strftime('%m/%d/%y')
     end_value = round(float(df.iloc[0]['sr']), 2)
     if end_value > 80:
@@ -69,16 +53,16 @@ def get_os(query_response):
 
 def get_stock_trend(query_response):
     hp_final = get_data_for_analysis(query_response)
-    start_date = hp_final.index.min()
-    end_date = hp_final.index.max()
+    start_date = pd.to_datetime(hp_final.index.min()).strftime('%m/%d/%y')
+    end_date = pd.to_datetime(hp_final.index.max()).strftime('%m/%d/%y')
     price_start = round(hp_final['value'].loc[start_date], 2)
     price_end = round(hp_final['value'].loc[end_date], 2)
     high_price = hp_final['value'].nlargest(1)
     high_price_value = round(high_price.iloc[0], 2)
-    high_price_date = high_price.index.values[0]
+    high_price_date = pd.to_datetime(high_price.index.values[0]).strftime('%m/%d/%y')
     low_price = hp_final['value'].nsmallest(1)
     low_price_value = round(low_price.iloc[0], 2)
-    low_price_date = low_price.index.values[0]
+    low_price_date = pd.to_datetime(low_price.index.values[0]).strftime('%m/%d/%y')
     change_abs = round(price_end - price_start, 2)
     change_percent = round((change_abs)/price_start*100, 2)
     if change_abs > 0:
@@ -98,6 +82,8 @@ def get_stock_trend(query_response):
               f"Annualized stock price volatility calculated based on performance during analysis period is {annualized_volatility}%.\n\n" \
               f"{avg_trading_volume}\n\n" \
               f"{wr}\n\n" \
-              f"{os}\n\n"
+              f"{os}\n\n\n" \
+              f"** Note: Average Trading Volume, Williams %R and Stochastic Oscillator are calculated based on 20-day period. **"
     return writeup
+
 

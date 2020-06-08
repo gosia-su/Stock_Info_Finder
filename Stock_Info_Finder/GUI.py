@@ -19,6 +19,7 @@ def get_info_text(query):
         text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, text_result)
     except:
+        text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, 'Oops! Something went wrong. Try a different ticker. Thank you!')
 
 
@@ -28,6 +29,7 @@ def get_news_text(query):
         text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, text_result)
     except:
+        text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, 'Oops! Something went wrong. Try a different ticker. Thank you!')
 
 
@@ -37,6 +39,7 @@ def get_cashflow_text(query):
         text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, text_result)
     except:
+        text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, 'Oops! Something went wrong. Try a different ticker. Thank you!')
 
 
@@ -46,6 +49,7 @@ def get_analytics_text(query):
         text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, text_result)
     except:
+        text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, 'Oops! Something went wrong. Try a different ticker. Thank you!')
 
 
@@ -74,6 +78,7 @@ def get_prediction(query):
         text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, text_result)
     except:
+        text_area.delete('1.0', tk.END)
         text_area.insert(tk.INSERT, 'Oops! Something went wrong. Try a different ticker. Thank you!')
 
 
@@ -93,6 +98,7 @@ def plot_future(query):
     plt.legend(loc=0, fontsize='x-small')
     plt.xticks(np.arange(0, 40, 1))
     plt.show()
+
 
 
 root = tk.Tk()

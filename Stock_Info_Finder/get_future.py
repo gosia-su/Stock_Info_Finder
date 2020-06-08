@@ -3,23 +3,13 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split
-import requests
-
-
-def get_historical_prices(query_response):
-    end_url = 'https://api-v2.intrinio.com/securities/'
-    api_key = '/historical_data/adj_close_price?api_key=OjJiZDM3OWU0ZTI0YmM5YTdhNzY1NjIwZjczZGRjMjg0'
-    url = end_url + str(query_response).upper() + api_key
-    data = requests.get(url).json()
-    data = pd.DataFrame(data['historical_data'])
-    data = data.sort_values(by=['date']).reset_index().drop(columns='index')
-    data = data.set_index('date')
-
-    return data
+import intrinio_data as int_d
 
 
 def get_predictions(query_response):
-    data = get_historical_prices(query_response)
+    data = int_d.get_intrinio_hp(query_response)
+    data = data.sort_values(by=['date']).reset_index().drop(columns='index')
+    data = data.set_index('date')
     forecast_days = 15
     data['prediction'] = data['value'].shift(-forecast_days)
 
